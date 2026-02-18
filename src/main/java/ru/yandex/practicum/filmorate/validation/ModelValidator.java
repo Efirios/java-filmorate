@@ -47,7 +47,6 @@ public final class ModelValidator {
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
 
-        // имя может быть пустым -> используем логин
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
