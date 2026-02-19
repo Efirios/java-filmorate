@@ -6,23 +6,21 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
-import java.util.Map;
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
-    public Map<String, String> handleValidation(ValidationException e) {
+    public ErrorResponse handleValidation(ValidationException e) {
         log.warn("Validation error: {}", e.getMessage());
-        return Map.of("error", e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
-    public Map<String, String> handleNotFound(NotFoundException e) {
+    public ErrorResponse handleNotFound(NotFoundException e) {
         log.warn("Not found: {}", e.getMessage());
-        return Map.of("error", e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 }
