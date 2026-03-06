@@ -23,4 +23,11 @@ public class ErrorHandler {
         log.warn("Not found: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Throwable.class)
+    public ErrorResponse handleThrowable(Throwable e) {
+        log.error("Unexpected error", e);
+        return new ErrorResponse("Произошла непредвиденная ошибка.");
+    }
 }
