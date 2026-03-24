@@ -4,12 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validation.ModelValidator;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public Collection<User> findAll() {
+    public java.util.Collection<User> findAll() {
         return userStorage.findAll();
     }
 
@@ -52,8 +53,14 @@ public class UserService {
         User user = userStorage.findById(id);
         User friend = userStorage.findById(friendId);
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(id);
+        FriendshipStatus reverseStatus = friend.getFriends().get(id);
+
+        if (reverseStatus != null) {
+            user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
+            friend.getFriends().put(id, FriendshipStatus.CONFIRMED);
+        } else {
+            user.getFriends().put(friendId, FriendshipStatus.UNCONFIRMED);
+        }
 
         log.info("Friend added: userId={}, friendId={}", id, friendId);
     }
@@ -70,7 +77,9 @@ public class UserService {
 
     public List<User> getFriends(int id) {
         User user = userStorage.findById(id);
-        return user.getFriends().stream()
+        return user.getFriends().entrySet().stream()
+                .filter(e -> e.getValue() == FriendshipStatus.CONFIRMED)
+                .map(Map.Entry::getKey)
                 .map(userStorage::findById)
                 .collect(Collectors.toList());
     }
@@ -79,10 +88,17 @@ public class UserService {
         User user = userStorage.findById(id);
         User other = userStorage.findById(otherId);
 
-        Set<Integer> friends = user.getFriends();
-        Set<Integer> otherFriends = other.getFriends();
+        Set<Integer> userFriends = user.getFriends().entrySet().stream()
+                .filter(e -> e.getValue() == FriendshipStatus.CONFIRMED)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
 
-        return friends.stream()
+        Set<Integer> otherFriends = other.getFriends().entrySet().stream()
+                .filter(e -> e.getValue() == FriendshipStatus.CONFIRMED)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        return userFriends.stream()
                 .filter(otherFriends::contains)
                 .map(userStorage::findById)
                 .collect(Collectors.toList());
