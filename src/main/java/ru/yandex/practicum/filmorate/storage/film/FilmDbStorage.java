@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Component
 @Qualifier("filmDbStorage")
@@ -44,8 +45,8 @@ public class FilmDbStorage implements FilmStorage {
         mpa.setName(rs.getString("mpa_name"));
         film.setMpa(mpa);
 
-        film.setGenres(new HashSet<>());
-        film.setLikes(new HashSet<>());
+        film.setGenres(new LinkedHashSet<>());
+        film.setLikes(new LinkedHashSet<>());
         return film;
     };
 
@@ -152,12 +153,12 @@ public class FilmDbStorage implements FilmStorage {
                 },
                 film.getId()
         );
-        film.setGenres(new HashSet<>(genres));
+        film.setGenres(new LinkedHashSet<>(genres));
     }
 
     private void loadLikes(Film film) {
         List<Integer> likes = likeDbStorage.findLikes(film.getId());
-        film.setLikes(new HashSet<>(likes));
+        film.setLikes(new LinkedHashSet<>(likes));
     }
 
     private void updateFilmGenres(int filmId, Set<Genre> genres) {
