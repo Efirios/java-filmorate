@@ -173,4 +173,22 @@ public class FilmDbStorage implements FilmStorage {
             );
         }
     }
+
+    @Override
+    public List<Film> findPopular(int count) {
+        List<Film> films = jdbcTemplate.query(
+                "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                        "m.mpa_id, m.name AS mpa_name " +
+                        "FROM films f " +
+                        "JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                        "LEFT JOIN film_likes fl ON f.film_id = fl.film_id " +
+                        "GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name " +
+                        "ORDER BY COUNT(fl.user_id) DESC, f.film_id " +
+                        "LIMIT ?",
+                mapper,
+                count
+        );
+        films.forEach(this::loadDetails);
+        return films;
+    }
 }

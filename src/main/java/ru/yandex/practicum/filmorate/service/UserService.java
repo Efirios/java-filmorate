@@ -67,16 +67,12 @@ public class UserService {
 
     public List<User> getFriends(int id) {
         userStorage.findById(id);
-        return friendshipDbStorage.findFriendIds(id).stream()
-                .map(userStorage::findById)
-                .collect(Collectors.toList());
+        return friendshipDbStorage.findFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
         userStorage.findById(id);
         userStorage.findById(otherId);
-        return friendshipDbStorage.findCommonFriendIds(id, otherId).stream()
-                .map(userStorage::findById)
-                .collect(Collectors.toList());
+        return friendshipDbStorage.findCommonFriends(id, otherId);
     }
 }

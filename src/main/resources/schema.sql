@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS users (
     birthday DATE NOT NULL
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS ux_users_login ON users(login);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_users_name ON users(name);
+
 CREATE TABLE IF NOT EXISTS mpa (
     mpa_id INTEGER PRIMARY KEY,
     name VARCHAR(10) NOT NULL

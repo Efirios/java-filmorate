@@ -1,8 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.friendship;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -11,6 +14,43 @@ public class FriendshipDbStorage {
 
     public FriendshipDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private final RowMapper<User> userMapper = (rs, rowNum) -> {
+        User user = new User();
+        user.setId(rs.getInt("user_id"));
+        user.setEmail(rs.getString("email"));
+        user.setLogin(rs.getString("login"));
+        user.setName(rs.getString("name"));
+        user.setBirthday(rs.getDate("birthday").toLocalDate());
+        user.setFriends(new HashMap<>());
+        return user;
+    };
+
+    public List<User> findFriends(int userId) {
+        return jdbcTemplate.query(
+                "SELECT u.user_id, u.email, u.login, u.name, u.birthday " +
+                        "FROM friendships f " +
+                        "JOIN users u ON f.friend_id = u.user_id " +
+                        "WHERE f.user_id = ? " +
+                        "ORDER BY u.user_id",
+                userMapper,
+                userId
+        );
+    }
+
+    public List<User> findCommonFriends(int userId, int otherId) {
+        return jdbcTemplate.query(
+                "SELECT u.user_id, u.email, u.login, u.name, u.birthday " +
+                        "FROM friendships f1 " +
+                        "JOIN friendships f2 ON f1.friend_id = f2.friend_id " +
+                        "JOIN users u ON u.user_id = f1.friend_id " +
+                        "WHERE f1.user_id = ? AND f2.user_id = ? " +
+                        "ORDER BY u.user_id",
+                userMapper,
+                userId,
+                otherId
+        );
     }
 
     public void addFriend(int userId, int friendId) {
@@ -45,27 +85,6 @@ public class FriendshipDbStorage {
                     friendId, userId
             );
         }
-    }
-
-    public List<Integer> findFriendIds(int userId) {
-        return jdbcTemplate.query(
-                "SELECT friend_id FROM friendships WHERE user_id = ? ORDER BY friend_id",
-                (rs, rowNum) -> rs.getInt("friend_id"),
-                userId
-        );
-    }
-
-    public List<Integer> findCommonFriendIds(int userId, int otherId) {
-        return jdbcTemplate.query(
-                "SELECT f1.friend_id " +
-                        "FROM friendships f1 " +
-                        "JOIN friendships f2 ON f1.friend_id = f2.friend_id " +
-                        "WHERE f1.user_id = ? AND f2.user_id = ? " +
-                        "ORDER BY f1.friend_id",
-                (rs, rowNum) -> rs.getInt("friend_id"),
-                userId,
-                otherId
-        );
     }
 
     private boolean exists(int userId, int friendId) {

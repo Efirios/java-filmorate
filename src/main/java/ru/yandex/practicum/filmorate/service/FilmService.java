@@ -100,9 +100,6 @@ public class FilmService {
         if (count <= 0) {
             throw new ValidationException("count должен быть больше нуля");
         }
-        return filmStorage.findAll().stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.findPopular(count);
     }
 }
