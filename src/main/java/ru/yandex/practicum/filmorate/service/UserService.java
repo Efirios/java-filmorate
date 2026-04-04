@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validation.ModelValidator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
