@@ -34,6 +34,9 @@ public final class ModelValidator {
         if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность должна быть положительным числом");
         }
+        if (film.getMpa() == null || film.getMpa().getId() == null) {
+            throw new ValidationException("Рейтинг должен быть указан");
+        }
     }
 
     public static void validateUser(User user) {

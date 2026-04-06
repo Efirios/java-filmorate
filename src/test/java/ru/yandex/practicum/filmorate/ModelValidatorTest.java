@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validation.ModelValidator;
 
@@ -14,11 +15,15 @@ class ModelValidatorTest {
 
     @Test
     void filmDescription200_ok_201_fail() {
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+
         Film ok = new Film();
         ok.setName("A");
         ok.setDescription("a".repeat(200));
         ok.setReleaseDate(LocalDate.of(2000, 1, 1));
         ok.setDuration(1);
+        ok.setMpa(mpa);
         assertDoesNotThrow(() -> ModelValidator.validateFilm(ok));
 
         Film bad = new Film();
@@ -26,16 +31,21 @@ class ModelValidatorTest {
         bad.setDescription("a".repeat(201));
         bad.setReleaseDate(LocalDate.of(2000, 1, 1));
         bad.setDuration(1);
+        bad.setMpa(mpa);
         assertThrows(ValidationException.class, () -> ModelValidator.validateFilm(bad));
     }
 
     @Test
     void filmReleaseDateBoundary() {
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+
         Film ok = new Film();
         ok.setName("A");
         ok.setDescription("d");
         ok.setReleaseDate(LocalDate.of(1895, 12, 28));
         ok.setDuration(1);
+        ok.setMpa(mpa);
         assertDoesNotThrow(() -> ModelValidator.validateFilm(ok));
 
         Film bad = new Film();
@@ -43,6 +53,7 @@ class ModelValidatorTest {
         bad.setDescription("d");
         bad.setReleaseDate(LocalDate.of(1895, 12, 27));
         bad.setDuration(1);
+        bad.setMpa(mpa);
         assertThrows(ValidationException.class, () -> ModelValidator.validateFilm(bad));
     }
 
